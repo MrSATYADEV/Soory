@@ -1,22 +1,23 @@
 #!/usr/bin/env python3
 """
 VPS Terminal Bot – Full control via Telegram
-Auto‑chmod +x on itself.
+Auto‑chmod +x on itself, auto‑install dependencies.
 """
 
 import os
 import sys
 import subprocess
 import stat
+import shutil
+import zipfile
+from pathlib import Path
 
 # ─── AUTO CHMOD +X ─────────────────────────────────────
 def ensure_executable():
     script_path = os.path.abspath(__file__)
     current_mode = os.stat(script_path).st_mode
-    # Check if owner execute permission is set
     if not (current_mode & stat.S_IXUSR):
         try:
-            # Add owner execute permission
             os.chmod(script_path, current_mode | stat.S_IXUSR)
             print(f"✅ Auto‑chmod +x applied to {script_path}")
         except Exception as e:
@@ -37,8 +38,8 @@ except ImportError:
     os.execv(sys.executable, [sys.executable] + sys.argv)
 
 # ─── CONFIG ────────────────────────────────────────────
-BOT_TOKEN = "8248561991:AAF-RgCPl8damAr9AQISspTEEMtKiNtpwMw"
-ALLOWED_USER_IDS = [8499514151]
+BOT_TOKEN = "8248561991:AAF-RgCPl8damAr9AQISspTEEMtKiNtpwMw"  # Replace with your new token after revoking
+ALLOWED_USER_IDS = [8499514151]  # Your Telegram user ID
 DEFAULT_DIR = "/root"
 current_dir = os.path.abspath(DEFAULT_DIR)
 # ──────────────────────────────────────────────────────
@@ -57,8 +58,6 @@ def run_cmd(cmd: str) -> str:
         return f"❌ Error: {str(e)}"
 
 # ─── COMMAND HANDLERS ──────────────────────────────────
-# (All handlers from previous code – unchanged)
-# ──────────────────────────────────────────────────────
 
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     if not is_allowed(update):
@@ -115,6 +114,7 @@ async def shell(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await update.message.reply_text(f"```\n{output}\n```", parse_mode="Markdown")
 
 async def change_dir(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    global current_dir  # ✅ Must be first line
     if not is_allowed(update):
         return
     if not context.args:
@@ -123,7 +123,6 @@ async def change_dir(update: Update, context: ContextTypes.DEFAULT_TYPE):
     new_path = " ".join(context.args)
     try:
         os.chdir(os.path.join(current_dir, new_path))
-        global current_dir
         current_dir = os.getcwd()
         await update.message.reply_text(f"✅ Changed to `{current_dir}`", parse_mode="Markdown")
     except Exception as e:
