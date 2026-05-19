@@ -39,7 +39,7 @@ except ImportError:
 
 # ─── CONFIG ────────────────────────────────────────────
 BOT_TOKEN = "8248561991:AAF-RgCPl8damAr9AQISspTEEMtKiNtpwMw"  # Replace with your new token after revoking
-ALLOWED_USER_IDS = [8499514151]  # Your Telegram user ID
+ALLOWED_USER_IDS = [8383872910]  # Your Telegram user ID
 DEFAULT_DIR = "/root"
 current_dir = os.path.abspath(DEFAULT_DIR)
 # ──────────────────────────────────────────────────────
